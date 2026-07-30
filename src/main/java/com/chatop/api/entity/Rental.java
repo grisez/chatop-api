@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "RENTALS")
 @Getter
@@ -26,13 +28,13 @@ public class Rental extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String name;
 
-    private Double surface;
+    private BigDecimal surface;
 
-    private Double price;
+    private BigDecimal price;
 
     private String picture;
 
