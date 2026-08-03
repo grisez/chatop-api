@@ -53,7 +53,7 @@ public class RentalController {
                                    @RequestParam String description,
                                    @RequestParam MultipartFile picture,
                                    Authentication authentication) {
-        var request = new RentalCreateRequest(name, surface, price, description, picture);
+        RentalCreateRequest request = new RentalCreateRequest(name, surface, price, description, picture);
         return rentalService.create(request, authentication.getName());
     }
 
@@ -67,7 +67,7 @@ public class RentalController {
                                    @RequestParam BigDecimal price,
                                    @RequestParam String description,
                                    Authentication authentication) {
-        var request = new RentalUpdateRequest(name, surface, price, description);
+        RentalUpdateRequest request = new RentalUpdateRequest(name, surface, price, description);
         return rentalService.update(id, request, authentication.getName());
     }
 }

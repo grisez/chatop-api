@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RentalServiceImpl implements RentalService {
@@ -29,7 +31,7 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public RentalsResponse getAll() {
-        var rentals = rentalRepository.findAll().stream()
+        List<RentalResponse> rentals = rentalRepository.findAll().stream()
                 .map(rentalMapper::toResponse)
                 .toList();
 
