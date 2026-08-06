@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -40,14 +41,17 @@ public class FileStorageService {
     public String store(MultipartFile file) {
         String filename = UUID.randomUUID() + ".jpg";
 
-        try {
-            BufferedImage original = ImageIO.read(file.getInputStream());
+        try (InputStream input = file.getInputStream()) {
+            BufferedImage original = ImageIO.read(input);
             if (original == null) {
                 throw new FileStorageException("Unsupported or corrupted image file", null);
             }
 
             BufferedImage resized = resize(original);
-            ImageIO.write(resized, "jpg", uploadDir.resolve(filename).toFile());
+            boolean written = ImageIO.write(resized, "jpg", uploadDir.resolve(filename).toFile());
+            if (!written) {
+                throw new FileStorageException("No JPEG writer available for the uploaded image", null);
+            }
         } catch (IOException e) {
             throw new FileStorageException("Failed to store file: " + filename, e);
         }
@@ -56,23 +60,20 @@ public class FileStorageService {
     }
 
     /**
-     * Scales the image down to TARGET_WIDTH, preserving its original aspect ratio.
-     * Images already narrower than TARGET_WIDTH are left untouched.
+     * Scales the image down to TARGET_WIDTH (preserving aspect ratio, images already
+     * narrower are left at their original size) and drops any alpha channel, since the
+     * picture is always re-encoded as JPEG, which cannot represent transparency.
      */
     private BufferedImage resize(BufferedImage original) {
-        if (original.getWidth() <= TARGET_WIDTH) {
-            return original;
-        }
+        int targetWidth = Math.min(original.getWidth(), TARGET_WIDTH);
+        int targetHeight = (int) Math.round(targetWidth * ((double) original.getHeight() / original.getWidth()));
 
-        int scaledWidth = TARGET_WIDTH;
-        int scaledHeight = (int) Math.round(TARGET_WIDTH * ((double) original.getHeight() / original.getWidth()));
-
-        Image scaled = original.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
-        BufferedImage scaledBuffered = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = scaledBuffered.createGraphics();
+        Image scaled = original.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+        BufferedImage buffered = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = buffered.createGraphics();
         graphics.drawImage(scaled, 0, 0, null);
         graphics.dispose();
 
-        return scaledBuffered;
+        return buffered;
     }
 }
