@@ -8,31 +8,37 @@ import com.chatop.api.dto.RentalUpdateRequest;
 import com.chatop.api.dto.RentalsResponse;
 import com.chatop.api.service.RentalService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/rentals")
 @RequiredArgsConstructor
 @SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
-@Validated
 public class RentalController {
 
     private final RentalService rentalService;
+
+    /**
+     * Trims every String field before validation/persistence: avoids storing leading/trailing
+     * spaces, and keeps @Size length checks accurate instead of counting padding as content.
+     */
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    }
 
     /**
      * Returns every rental listed on the platform.
@@ -50,17 +56,12 @@ public class RentalController {
         return rentalService.getById(id);
     }
 
-    /**
+       /**
      * Creates a new rental owned by the authenticated user, storing the uploaded picture on disk.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public MessageResponse create(@RequestParam @NotBlank String name,
-                                   @RequestParam @Positive BigDecimal surface,
-                                   @RequestParam @Positive BigDecimal price,
-                                   @RequestParam @NotBlank String description,
-                                   @RequestParam MultipartFile picture,
-                                   Authentication authentication) {
-        RentalCreateRequest request = new RentalCreateRequest(name, surface, price, description, picture);
+    public MessageResponse create(@Valid @ModelAttribute RentalCreateRequest request,
+                                  Authentication authentication) {
         return rentalService.create(request, authentication.getName());
     }
 
@@ -69,12 +70,8 @@ public class RentalController {
      */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public MessageResponse update(@PathVariable Integer id,
-                                   @RequestParam @NotBlank String name,
-                                   @RequestParam @Positive BigDecimal surface,
-                                   @RequestParam @Positive BigDecimal price,
-                                   @RequestParam @NotBlank String description,
+                                   @Valid @ModelAttribute RentalUpdateRequest request,
                                    Authentication authentication) {
-        RentalUpdateRequest request = new RentalUpdateRequest(name, surface, price, description);
         return rentalService.update(id, request, authentication.getName());
     }
 }
