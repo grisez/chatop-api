@@ -1,8 +1,10 @@
 package com.chatop.api.controller;
 
+import com.chatop.api.config.OpenApiConfig;
 import com.chatop.api.dto.MessageCreateRequest;
 import com.chatop.api.dto.MessageResponse;
 import com.chatop.api.service.MessageService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
 public class MessageController {
 
     private final MessageService messageService;
