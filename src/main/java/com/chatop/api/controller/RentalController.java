@@ -1,11 +1,13 @@
 package com.chatop.api.controller;
 
+import com.chatop.api.config.OpenApiConfig;
 import com.chatop.api.dto.MessageResponse;
 import com.chatop.api.dto.RentalCreateRequest;
 import com.chatop.api.dto.RentalResponse;
 import com.chatop.api.dto.RentalUpdateRequest;
 import com.chatop.api.dto.RentalsResponse;
 import com.chatop.api.service.RentalService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/rentals")
 @RequiredArgsConstructor
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
 public class RentalController {
 
     private final RentalService rentalService;
