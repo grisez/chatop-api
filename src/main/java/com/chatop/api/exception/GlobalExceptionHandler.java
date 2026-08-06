@@ -1,6 +1,7 @@
 package com.chatop.api.exception;
 
 import com.chatop.api.dto.ErrorResponse;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
+import java.util.stream.Collectors;
 
 /**
  * Central place to translate exceptions into the HTTP status codes/response
@@ -22,21 +25,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                .findFirst()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
-                .orElse("Invalid request payload");
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(message));
+                .body(new ErrorResponse(message.isEmpty() ? "Invalid request payload" : message));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         String message = ex.getConstraintViolations().stream()
-                .findFirst()
-                .map(violation -> violation.getMessage())
-                .orElse("Invalid request payload");
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("; "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(message));
+                .body(new ErrorResponse(message.isEmpty() ? "Invalid request payload" : message));
     }
 
     @ExceptionHandler(EmailAlreadyUsedException.class)
