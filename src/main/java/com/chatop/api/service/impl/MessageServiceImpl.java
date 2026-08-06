@@ -5,7 +5,6 @@ import com.chatop.api.dto.MessageResponse;
 import com.chatop.api.entity.Message;
 import com.chatop.api.entity.Rental;
 import com.chatop.api.entity.User;
-import com.chatop.api.exception.InvalidMessageDataException;
 import com.chatop.api.exception.RentalNotFoundException;
 import com.chatop.api.repository.MessageRepository;
 import com.chatop.api.repository.RentalRepository;
@@ -14,7 +13,6 @@ import com.chatop.api.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +24,6 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageResponse create(MessageCreateRequest request, String senderEmail) {
-        validate(request);
-
         Rental rental = findRentalOrThrow(request.rentalId());
         User sender = findUserOrThrow(senderEmail);
 
@@ -49,14 +45,5 @@ public class MessageServiceImpl implements MessageService {
     private User findUserOrThrow(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No user found with email: " + email));
-    }
-
-    private void validate(MessageCreateRequest request) {
-        if (request.rentalId() == null) {
-            throw new InvalidMessageDataException("rentalId must not be null");
-        }
-        if (!StringUtils.hasText(request.message())) {
-            throw new InvalidMessageDataException("Message must not be blank");
-        }
     }
 }

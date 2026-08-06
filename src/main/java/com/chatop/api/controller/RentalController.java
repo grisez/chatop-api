@@ -8,9 +8,12 @@ import com.chatop.api.dto.RentalUpdateRequest;
 import com.chatop.api.dto.RentalsResponse;
 import com.chatop.api.service.RentalService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +29,7 @@ import java.math.BigDecimal;
 @RequestMapping("/api/rentals")
 @RequiredArgsConstructor
 @SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
+@Validated
 public class RentalController {
 
     private final RentalService rentalService;
@@ -50,10 +54,10 @@ public class RentalController {
      * Creates a new rental owned by the authenticated user, storing the uploaded picture on disk.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public MessageResponse create(@RequestParam String name,
-                                   @RequestParam BigDecimal surface,
-                                   @RequestParam BigDecimal price,
-                                   @RequestParam String description,
+    public MessageResponse create(@RequestParam @NotBlank String name,
+                                   @RequestParam @Positive BigDecimal surface,
+                                   @RequestParam @Positive BigDecimal price,
+                                   @RequestParam @NotBlank String description,
                                    @RequestParam MultipartFile picture,
                                    Authentication authentication) {
         RentalCreateRequest request = new RentalCreateRequest(name, surface, price, description, picture);
@@ -65,10 +69,10 @@ public class RentalController {
      */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public MessageResponse update(@PathVariable Integer id,
-                                   @RequestParam String name,
-                                   @RequestParam BigDecimal surface,
-                                   @RequestParam BigDecimal price,
-                                   @RequestParam String description,
+                                   @RequestParam @NotBlank String name,
+                                   @RequestParam @Positive BigDecimal surface,
+                                   @RequestParam @Positive BigDecimal price,
+                                   @RequestParam @NotBlank String description,
                                    Authentication authentication) {
         RentalUpdateRequest request = new RentalUpdateRequest(name, surface, price, description);
         return rentalService.update(id, request, authentication.getName());

@@ -1,9 +1,12 @@
 package com.chatop.api.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record MessageCreateRequest(
-        Integer rentalId,
+        @NotNull Integer rentalId,
         // Sent by the front-end but ignored server-side: the sender is derived from the
         // authenticated principal, never trusted from the request body.
         Integer userId,
-        String message) {
+        @NotBlank String message) {
 }
