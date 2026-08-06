@@ -5,6 +5,7 @@ import com.chatop.api.dto.MessageCreateRequest;
 import com.chatop.api.dto.MessageResponse;
 import com.chatop.api.service.MessageService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,7 @@ public class MessageController {
      * Sends a message from the authenticated user about a rental.
      */
     @PostMapping
-    public MessageResponse create(@RequestBody MessageCreateRequest request, Authentication authentication) {
+    public MessageResponse create(@Valid @RequestBody MessageCreateRequest request, Authentication authentication) {
         return messageService.create(request, authentication.getName());
     }
 }

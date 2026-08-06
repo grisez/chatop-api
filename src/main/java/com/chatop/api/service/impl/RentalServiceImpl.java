@@ -8,7 +8,6 @@ import com.chatop.api.dto.RentalsResponse;
 import com.chatop.api.entity.Rental;
 import com.chatop.api.entity.User;
 import com.chatop.api.exception.ForbiddenOperationException;
-import com.chatop.api.exception.InvalidRentalDataException;
 import com.chatop.api.exception.RentalNotFoundException;
 import com.chatop.api.mapper.RentalMapper;
 import com.chatop.api.repository.RentalRepository;
@@ -18,9 +17,7 @@ import com.chatop.api.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -49,8 +46,6 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public MessageResponse create(RentalCreateRequest request, String ownerEmail) {
-        validate(request.surface(), request.price(), request.name(), request.description());
-
         User owner = findUserOrThrow(ownerEmail);
         String pictureUrl = fileStorageService.store(request.picture());
 
@@ -69,8 +64,6 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public MessageResponse update(Integer id, RentalUpdateRequest request, String requesterEmail) {
-        validate(request.surface(), request.price(), request.name(), request.description());
-
         Rental rental = findRentalOrThrow(id);
 
         if (!rental.getOwner().getEmail().equals(requesterEmail)) {
@@ -94,20 +87,5 @@ public class RentalServiceImpl implements RentalService {
     private User findUserOrThrow(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No user found with email: " + email));
-    }
-
-    private void validate(BigDecimal surface, BigDecimal price, String name, String description) {
-        if (surface == null || surface.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidRentalDataException("Surface must be a positive number");
-        }
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidRentalDataException("Price must be a positive number");
-        }
-        if (!StringUtils.hasText(name)) {
-            throw new InvalidRentalDataException("Name must not be blank");
-        }
-        if (!StringUtils.hasText(description)) {
-            throw new InvalidRentalDataException("Description must not be blank");
-        }
     }
 }
