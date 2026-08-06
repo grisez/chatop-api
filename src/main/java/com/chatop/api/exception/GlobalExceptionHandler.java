@@ -57,4 +57,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body(new ErrorResponse("Uploaded file is too large"));
     }
+
+    @ExceptionHandler(InvalidRentalDataException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRentalData(InvalidRentalDataException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
 }
