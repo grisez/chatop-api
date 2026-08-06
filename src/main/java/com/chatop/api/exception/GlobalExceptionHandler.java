@@ -1,6 +1,7 @@
 package com.chatop.api.exception;
 
 import com.chatop.api.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
  * Central place to translate exceptions into the HTTP status codes/response
  * bodies expected by the front-end. Extended as new routes are implemented.
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -74,5 +76,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidMessageData(InvalidMessageDataException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    /**
+     * Catches everything not handled above so the front-end always gets the expected
+     * {message: ...} shape instead of Spring Boot's default error page, without leaking
+     * internal details of the failure.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        log.error("Unexpected error", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("An unexpected error occurred"));
     }
 }
