@@ -1,11 +1,13 @@
 package com.chatop.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public record UserResponse(
         Integer id,
         String name,
         String email,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        @JsonProperty("created_at") LocalDateTime createdAt,
+        @JsonProperty("updated_at") LocalDateTime updatedAt) {
 }

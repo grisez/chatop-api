@@ -6,6 +6,7 @@ import com.chatop.api.dto.LoginRequest;
 import com.chatop.api.dto.RegisterRequest;
 import com.chatop.api.dto.UserResponse;
 import com.chatop.api.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthController {
     /**
      * Creates a new user account and returns an access token.
      */
+    @Operation(summary = "Creates a new user account and returns an access token.")
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
@@ -34,6 +36,7 @@ public class AuthController {
     /**
      * Authenticates a user and returns an access token.
      */
+    @Operation(summary = "Authenticates a user and returns an access token.")
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
@@ -42,6 +45,7 @@ public class AuthController {
     /**
      * Returns the profile of the currently authenticated user.
      */
+    @Operation(summary = "Returns the profile of the currently authenticated user.")
     @GetMapping("/me")
     @SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
     public UserResponse me(Authentication authentication) {
