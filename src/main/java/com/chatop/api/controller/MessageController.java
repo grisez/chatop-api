@@ -4,6 +4,7 @@ import com.chatop.api.config.OpenApiConfig;
 import com.chatop.api.dto.MessageCreateRequest;
 import com.chatop.api.dto.MessageResponse;
 import com.chatop.api.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class MessageController {
     /**
      * Sends a message from the authenticated user about a rental.
      */
+    @Operation(summary = "Sends a message from the authenticated user about a rental.")
     @PostMapping
     public MessageResponse create(@Valid @RequestBody MessageCreateRequest request, Authentication authentication) {
         return messageService.create(request, authentication.getName());

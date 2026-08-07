@@ -3,6 +3,7 @@ package com.chatop.api.controller;
 import com.chatop.api.config.OpenApiConfig;
 import com.chatop.api.dto.UserResponse;
 import com.chatop.api.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ public class UserController {
     /**
      * Returns the public profile of a user by id.
      */
+    @Operation(summary = "Returns the public profile of a user by id.")
     @GetMapping("/{id}")
     public UserResponse getById(@PathVariable Integer id) {
         return userService.getById(id);
